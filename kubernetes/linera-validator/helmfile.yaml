@@ -1,7 +1,7 @@
 environments:
   default:
     values:
-      - writeToGrafanaCloud: {{ env "LINERA_WRITE_TO_GRAFANA_CLOUD" | default "false" }}
+      - writeToGrafanaCloud: {{ env "LINERA_WRITE_TO_GRAFANA_CLOUD" | default "true" }}
         validatorLabel: {{ env "LINERA_VALIDATOR_LABEL" | default (printf "local-%s" (env "USER")) }}
 
 ---
@@ -25,8 +25,8 @@ releases:
       - scylla/scylla
     values:
       {{ if .Values.writeToGrafanaCloud -}}
-      - grafanaCloudUsername: {{ fetchSecretValue (env "LINERA_GRAFANA_CLOUD_USERNAME_SECRET") | quote }}
-        grafanaCloudAPIToken: {{ fetchSecretValue (env "LINERA_GRAFANA_CLOUD_API_TOKEN_SECRET") | quote }}
+      - grafanaCloudUsername: {{ fetchSecretValue (env "LINERA_GRAFANA_CLOUD_USERNAME_SECRET" | default "ref+gcpsecrets://linera-io-dev/grafana-cloud-username?version=latest") | quote }}
+        grafanaCloudAPIToken: {{ fetchSecretValue (env "LINERA_GRAFANA_CLOUD_API_TOKEN_SECRET" | default "ref+gcpsecrets://linera-io-dev/grafana-cloud-api-token?version=latest") | quote }}
       {{- end }}
       - writeToGrafanaCloud: {{ .Values.writeToGrafanaCloud }}
       - {{ env "LINERA_HELMFILE_VALUES_LINERA_CORE" | default "values-local.yaml.gotmpl" }}
